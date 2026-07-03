@@ -203,6 +203,7 @@ Hire Me<span class="brand-sa">SA</span>
 <button class="sidebar-link" id="sb-billing" onclick="showAccountTab('billing')">💳&nbsp;&nbsp;Subscription</button>
 <button class="sidebar-link" id="sb-applications" onclick="showAccountTab('applications')">📨&nbsp;&nbsp;My Applications</button>
 <button class="sidebar-link" id="sb-settings" onclick="showAccountTab('settings')">⚙️&nbsp;&nbsp;Settings</button>
+<button class="sidebar-link" id="sb-admin" onclick="showSection('admin')" style="display:none;color:var(--gold);font-weight:800;">🛠️&nbsp;&nbsp;Admin Dashboard</button>
 <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);">
 <button class="sidebar-link" onclick="logout()">🚪&nbsp;&nbsp;Log Out</button>
 </div>
@@ -1096,6 +1097,7 @@ currentProfile = null;
 isTeamPoster = false;
 const an = document.getElementById('nav-admin'); if (an) an.style.display = 'none';
 const anm = document.getElementById('mobile-nav-admin'); if (anm) anm.style.display = 'none';
+const ansb = document.getElementById('sb-admin'); if (ansb) ansb.style.display = 'none';
 showToast('Logged out');
 showSection('home');
 }
@@ -1104,14 +1106,17 @@ async function loadCurrentUserAndProfile() {
 const { data: { user } } = await sb.auth.getUser();
 currentUser = user;
 if (!user) { currentProfile = null; refreshGatedViews(); return; }
-const { data: profile, error } = await sb.from('profiles').select('*').eq('id', user.id).single();
+const { data: profile, error } = await sb.from('profiles').select('*, is_admin').eq('id', user.id).single();
 if (error) { console.error(error); return; }
 currentProfile = profile;
 isTeamPoster = profile.role === 'admin';
 const adminNavEl = document.getElementById('nav-admin');
 const adminNavMob = document.getElementById('mobile-nav-admin');
-if (adminNavEl) adminNavEl.style.display = profile.is_admin ? 'inline-flex' : 'none';
-if (adminNavMob) adminNavMob.style.display = profile.is_admin ? 'block' : 'none';
+const adminSbEl = document.getElementById('sb-admin');
+const isAdmin = profile.is_admin === true;
+if (adminNavEl) adminNavEl.style.display = isAdmin ? 'inline-flex' : 'none';
+if (adminNavMob) adminNavMob.style.display = isAdmin ? 'block' : 'none';
+if (adminSbEl) adminSbEl.style.display = isAdmin ? 'block' : 'none';
 updateAccountHeader();
 populateProfileTab();
 populateSettingsTab();
